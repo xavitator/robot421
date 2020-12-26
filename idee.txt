@@ -1,0 +1,22 @@
+n = nombre de robots
+c = nombre de case
+a = nombre d'arete
+
+O) Cas de 1 robot sans obstacle :
+	vas a x, va a y, OK
+
+O bis) Cas de 1 robot avec obstacle :
+ -> passage secret autour de la grille 
+ -> parcours de graphe en largeur (choper le plus court) => O(c*a)
+
+
+O ter ) Cas de 2 robots sans obstacle ?
+
+
+1) Optimiser la distance :
+
+
+
+
+
+2) Optimiser le temps :
