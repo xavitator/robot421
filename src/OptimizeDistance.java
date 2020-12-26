@@ -1,4 +1,4 @@
-package given;
+
 
 	/**
 	 * Main program that takes as input a JSON storing the set of starting and target positions of robots

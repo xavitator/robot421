@@ -1,4 +1,4 @@
-package given;
+
 /**
  * An abstract class defining a generic algorithm that computes a solution of the motion planning problem. <br>
  * 

@@ -1,4 +1,4 @@
-package given;
+
 /**
  * A class defining an instance of the problem containing: <br>
  * -) the starting positions of all robots <br>

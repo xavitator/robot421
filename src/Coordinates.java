@@ -1,4 +1,4 @@
-package given;
+
 /**
  * This class encapsulates an array storing 2D integer coordinates (for representing robots, obstacles and target locations)
  * 
