@@ -10,13 +10,71 @@ O bis) Cas de 1 robot avec obstacle :
  -> parcours de graphe en largeur (choper le plus court) => O(c*a)
 
 
-O ter ) Cas de 2 robots sans obstacle ?
+1) Cas de 2 robots
 
 
-1) Optimiser la distance :
+=> Passage secret de la taille égale au nombre de robots
 
 
+Chaque robot possède :
+	- un chemin optimal à parcourir depuis sa position actuelle (au début inconnu)
+	- un chemin déjà parcouru depuis sa position de départ (au début vide)
+
+ => à chaque pas de temps on fait évoluer les 2 chemins (la majorité du temps c'est mettre la première case de l'un au début de l'autre)
+ => attention les 2 chemins sont des listes chainés et ne sont donc pas dans le même sens.
 
 
+fonction rentre-dedans:
 
-2) Optimiser le temps :
+	"""les robots sont nommés robot_arriere et robot_avant"""
+
+	robot_arriere fait un parcours de graphe avec cette case comme obstacle :
+		si meme temps oki on le prend et on continue
+
+		sinon :
+			si robot_arriere est le plus proche ou à distance égale  :
+				robot_arriere passe un temps, robot_avant continue
+
+			sinon, si robot_avant peut "se faire pousser" :
+				les 2 robots vont dans la même direction, donnée par robot_arriere
+
+			sinon, si robot_avant a une target qui n'est pas sur le chemin de robot_arriere :
+				robot_arriere passe un temps et l'autre avance de 1
+
+			sinon :
+				robot_avant cherche une case voisine au chemin de robot_avant et la défini comme target intermédiaire
+					=> on ne fait alors évoluer aucune variable (sauf la liste des target de robot_avant) et on relance tout
+
+				si une telle case n'existe pas :
+					on parcourt le graphe depuis la place de robot_arriere à l'opposé de robot_avant pour jusqu'à avoir un choix :
+						- si cela n'arrive jamais :
+							situation non résolvable
+						- un de ces choix devient une target intermédiaire de robot_avant
+							=> on ne fait alors évoluer aucune variable (sauf la liste des target de robot_avant) et on relance tout
+						
+
+	
+
+fonction bump :
+
+	nommons r1 et r2 les 2 robots
+
+	si un des robots a un chemin aussi court en évitant cette case :
+		on le prend, OK
+	si aucun des deux ne peut sortir du chemin de l'autre :
+		position impossible
+	si l'un des deux (par exemple r2) ne peut pas sortir du chemin de l'autre :
+		r1 cherche une case voisine au chemin de r1 et la défini comme target intermédiaire
+			=> on ne fait alors évoluer aucune variable (sauf la liste des target de r1) et on relance tout
+	si les deux peuvent sortir :
+		si il y en a un des 2 (par exemple r2) qui est déjà hors du chemin :
+			si r1 est arrivé :
+				r1 cherche une case voisine au chemin de r1 et la défini comme target intermédiaire
+					=> on ne fait alors évoluer aucune variable (sauf la liste des target de r1) et on relance tout
+			sinon :
+				r2 attend un tour
+		sinon :
+			celui qui est le plus proche de sortir du chemin cherche une case voisine au chemin de l'autre et la défini comme target intermédiaire
+
+
+post processing : si un robot passe 2 fois par la même case, target intermédiaire sur cette case jusqu'à qu'il parte ?
