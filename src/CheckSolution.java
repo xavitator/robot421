@@ -24,7 +24,7 @@ public class CheckSolution {
 		Solution solution=IO.loadSolution(inputSolution, input.n); // read the input solution
 		System.out.println(solution);
 		
-		if(solution.isValid()) {
+		if(solution.isValid(input)) {
 			System.out.println("The input solution is valid");
 		}
 		else {

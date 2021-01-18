@@ -1,3 +1,4 @@
+import java.util.Arrays;
 
 /**
  * This class encapsulates an array storing 2D integer coordinates (for representing robots, obstacles and target locations)
@@ -130,4 +131,77 @@ public class Coordinates {
     	this.pos[1][i]--;
     }
 
+    public boolean contains(int[] point){
+        for (int i = 0; i < n; i++) {
+            if(getX(i) == point[0] && getY(i) == point[1]) return true;
+        }
+        return false;
+    }
+
+    public boolean containsTwo(){
+        int[][] cop = new int[this.n][2];
+        for (int i = 0; i < this.n; i++) {
+            cop[i][0] = this.getX(i);
+            cop[i][1] = this.getY(i);
+        }
+        Arrays.sort(cop, (a,b) -> {
+            int compX = Integer.compare(a[0], b[0]);
+            if(compX == 0){
+                return Integer.compare(a[1], b[1]);
+            }
+            return  compX;
+        });
+        for (int i = 0; i < n-1; i++) {
+            if (cop[i][0] == cop[i+1][0] && cop[i][1] == cop[i+1][1]){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean choc(Coordinates obs){
+        for (int i = 0; i < this.n; i++) {
+            for (int j = 0; j < obs.n; j++) {
+                if(this.getX(i) == obs.getX(j) && this.getY(i) == obs.getY(j)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean moveBetweenRob(byte[] mov){
+        for (int i = 0; i < this.n; i++) {
+            int x = this.getX(i);
+            int y = this.getY(i);
+            switch (mov[i]){
+                case Solution.FIXED : ;
+                case Solution.N: y++;
+                case Solution.S: y--;
+                case Solution.E: x++;
+                case Solution.W: x--;
+            }
+            for (int j = 0; j < this.n; j++) {
+                if (i == j) continue;
+                if(this.getX(j) == x && this.getY(j) == y){
+                    if(mov[i] != mov[j]){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public void move(byte[] mov){
+        for (byte i = 0; i < mov.length; i++) {
+            switch (mov[i]){
+                case Solution.FIXED : ;
+                case Solution.N: this.increaseY(i);
+                case Solution.S: this.decreaseY(i);
+                case Solution.E: this.increaseX(i);
+                case Solution.W: this.decreaseX(i);
+            }
+        }
+    }
 }

@@ -67,8 +67,26 @@ public class Solution {
 	 * 
 	 * @return TRUE is all motion parallel steps are valid (according to the rules of the problem)
 	 */
-	public boolean isValid() {
-		throw new Error("TO BE COMPLETED");
+	public boolean isValid(Instance input) {
+		Coordinates cop = new Coordinates(input.starts.getPositions());
+		int i = 0;
+		for (byte[] mov : steps){
+			if(cop.containsTwo()) {
+				System.out.println("Contains two : " + i);
+				return false;
+			}
+			if(! cop.moveBetweenRob(mov)) {
+				System.out.println("Choc between two robots : " + i);
+				return false;
+			}
+			cop.move(mov);
+			if(cop.choc(input.obstacles)){
+				System.out.println("Choc with an obstacle : " + i);
+				return false;
+			}
+			i++;
+		}
+		return true;
 	}
 	
 	public String toString() {

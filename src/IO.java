@@ -21,10 +21,10 @@ public class IO {
 	public static Instance loadInputInstance(String filename){
 		System.out.print("Reading JSON input file: "+filename+"...");
 		JSONObject json;
-		
+
 		json = loadFile(filename);
 		System.out.println("ok");
-		
+
 		String name = json.getString("name");
 		JSONArray starts = json.getJSONArray("starts");
 		JSONArray targets = json.getJSONArray("targets");
