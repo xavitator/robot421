@@ -23,6 +23,15 @@ Chaque robot possède :
  => à chaque pas de temps on fait évoluer les 2 chemins (la majorité du temps c'est mettre la première case de l'un au début de l'autre)
  => attention les 2 chemins sont des listes chainés et ne sont donc pas dans le même sens.
 
+fonction principale :
+	while (tout le monde est arrivé && chemin existant){
+		while (prochaine étape impossible){
+			scan rentre-dedans et scan bump
+			(chemin impossible existant)
+		}
+		avancer d'un cran
+	}
+	retourner solution
 
 fonction rentre-dedans:
 
@@ -42,7 +51,7 @@ fonction rentre-dedans:
 				robot_arriere passe un temps et l'autre avance de 1
 
 			sinon :
-				robot_avant cherche une case voisine au chemin de robot_avant et la défini comme target intermédiaire
+				robot_avant cherche une case voisine au chemin de robot_arriere  et la défini comme target intermédiaire
 					=> on ne fait alors évoluer aucune variable (sauf la liste des target de robot_avant) et on relance tout
 
 				si une telle case n'existe pas :
@@ -69,7 +78,7 @@ fonction bump :
 	si les deux peuvent sortir :
 		si il y en a un des 2 (par exemple r2) qui est déjà hors du chemin :
 			si r1 est arrivé :
-				r1 cherche une case voisine au chemin de r1 et la défini comme target intermédiaire
+				r1 cherche une case voisine au chemin de r2 et la défini comme target intermédiaire
 					=> on ne fait alors évoluer aucune variable (sauf la liste des target de r1) et on relance tout
 			sinon :
 				r2 attend un tour

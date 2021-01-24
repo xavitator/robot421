@@ -28,4 +28,5 @@ hs_err_pid*
 
 #intellij
 .idea/
+out/
 robot421.iml

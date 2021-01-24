@@ -138,6 +138,18 @@ public class Coordinates {
         return false;
     }
 
+    public Coordinates addOne(int[] a){
+        int size = n + 1;
+        int[][] nt = new int[2][size];
+        for (int i = 0; i < size; i++) {
+            nt[0][i]=pos[0][i];
+    		nt[1][i]=pos[1][i];
+        }
+        nt[1][size-1]=a[1];
+        nt[0][size-1]=a[0];
+        return new Coordinates(nt);
+    }
+
     public boolean containsTwo(){
         int[][] cop = new int[this.n][2];
         for (int i = 0; i < this.n; i++) {
@@ -175,11 +187,11 @@ public class Coordinates {
             int x = this.getX(i);
             int y = this.getY(i);
             switch (mov[i]){
-                case Solution.FIXED : ;
-                case Solution.N: y++;
-                case Solution.S: y--;
-                case Solution.E: x++;
-                case Solution.W: x--;
+                case Solution.FIXED : break ;
+                case Solution.N: y++;break;
+                case Solution.S: y--;break;
+                case Solution.E: x++;break;
+                case Solution.W: x--;break;
             }
             for (int j = 0; j < this.n; j++) {
                 if (i == j) continue;
@@ -196,11 +208,11 @@ public class Coordinates {
     public void move(byte[] mov){
         for (byte i = 0; i < mov.length; i++) {
             switch (mov[i]){
-                case Solution.FIXED : ;
-                case Solution.N: this.increaseY(i);
-                case Solution.S: this.decreaseY(i);
-                case Solution.E: this.increaseX(i);
-                case Solution.W: this.decreaseX(i);
+                case Solution.FIXED : break;
+                case Solution.N: this.increaseY(i);break;
+                case Solution.S: this.decreaseY(i);break;
+                case Solution.E: this.increaseX(i);break;
+                case Solution.W: this.decreaseX(i);break;
             }
         }
     }

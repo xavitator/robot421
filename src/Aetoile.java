@@ -7,7 +7,7 @@ public class Aetoile {
     Coordinates obstacles;
 
     private HashSet<Node> closed = new HashSet<>();
-    private TreeSet<Node> open = new TreeSet<>();
+    private TreeSet<Node> open = new TreeSet<>((a,b) -> a.compare(a,b));
 
     public Aetoile(int[] start, int[] target, Coordinates obstacles) {
         this.start = start;
@@ -55,7 +55,7 @@ public class Aetoile {
 
     }
 
-    private class Node implements Comparator {
+    private class Node {
 
         int x, y, prevDist;
         final int absDist;
@@ -85,12 +85,16 @@ public class Aetoile {
             return x == node.x && y == node.y;
         }
 
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y);
+        }
+
         public boolean equals(int[] other) {
             if(other.length != 2) return false;
             return x == other[0] && y == other[1];
         }
 
-        @Override
         public int compare(Object o, Object t1) {
             if(o == null && t1 == null) return 0;
             if (o == null) return 1;
@@ -99,5 +103,22 @@ public class Aetoile {
             Node o2 = (Node) t1;
             return o1.distance() - o2.distance();
         }
+
+
+    }
+
+    public static void main(String[] args){
+        int[] s = {0,0};
+        int[] e = {10,10};
+        int[][] t = {
+                {1,2,1,1},
+                {2,3,1,0}
+        };
+        Coordinates ob = new Coordinates(t);
+        Aetoile el = new Aetoile(s,e,ob);
+        for (int[] i : el.runAlgo()){
+            System.out.println(i[0] + " " + i[1]);
+        }
     }
 }
+

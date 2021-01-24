@@ -13,6 +13,20 @@ public class Solution {
 	/** Possible robot movements into Western, Eastern, Northern or Southern direction. (FIXED means that the robot is not moving) */
 	public final static byte FIXED=0, N=1, S=2, E=3, W=4;
 
+	public static byte getMove(int[] actual, int[] next){
+		switch (actual[0] - next[0]){
+			case 1 : return W;
+			case -1 : return E;
+			default: break;
+		}
+		switch (actual[1] - next[1]){
+			case 1 : return S;
+			case -1 : return N;
+			default: break;
+		}
+		return FIXED;
+	}
+
 	/** Name of the input instance */
 	public String name;
 	
