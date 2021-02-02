@@ -5,6 +5,8 @@ public class Aetoile {
     int[] start;
     int[] target;
     Coordinates obstacles;
+    public int xmin=Integer.MAX_VALUE, xmax=Integer.MIN_VALUE, ymin=Integer.MAX_VALUE, ymax=Integer.MIN_VALUE;
+
 
     private HashSet<Node> closed = new HashSet<>();
     private TreeSet<Node> open = new TreeSet<>((a,b) -> a.compare(a,b));
@@ -13,6 +15,12 @@ public class Aetoile {
         this.start = start;
         this.target = target;
         this.obstacles = obstacles;
+        obstacles.getBoundingBox();
+        xmin = obstacles.xmin-1;
+        xmax = obstacles.xmax+1;
+        ymin = obstacles.ymin-1;
+        ymax = obstacles.ymax+1;
+        System.out.printf("%d, %d, %d, %d\n", xmin, xmax, ymin, ymax);
         Node s = new Node(start[0], start[1], 0, null);
         this.open.add(s);
     }
@@ -35,11 +43,12 @@ public class Aetoile {
             res.addFirst(t);
             courant = courant.parent;
         }
-        while(courant.parent != null);
+        while(courant != null);
         return res;
     }
 
     public void addNode(Node parent, int x, int y){
+        if(x < xmin || x > xmax || y < ymin || y > ymax) return;
         int[] point = {x, y};
         int prevDist = parent.prevDist + 1;
         if(obstacles.contains(point)) return;
@@ -105,20 +114,6 @@ public class Aetoile {
         }
 
 
-    }
-
-    public static void main(String[] args){
-        int[] s = {0,0};
-        int[] e = {10,10};
-        int[][] t = {
-                {1,2,1,1},
-                {2,3,1,0}
-        };
-        Coordinates ob = new Coordinates(t);
-        Aetoile el = new Aetoile(s,e,ob);
-        for (int[] i : el.runAlgo()){
-            System.out.println(i[0] + " " + i[1]);
-        }
     }
 }
 

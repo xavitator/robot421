@@ -15,12 +15,12 @@ public abstract class MotionAlgorithm {
 	/**
 	 * Compute a complete solution to the input problem: compute all steps, until all robots reach their target destinations
 	 */
-	public abstract void run();
+	public abstract boolean run();
 	
 	/**
 	 * Add a new motion step to the current solution
 	 */
-	public abstract void computeOneStep();
+	public abstract byte[] computeOneStep();
 
 	/**
 	 * Perform one step of the parallel-motion for all robots: robots are move to new locations. <br>

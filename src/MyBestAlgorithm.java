@@ -14,11 +14,19 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 	
 	/** Current locations of robots */
 	Coordinates current;
+
+	Robot[] robots;
 	
 	public MyBestAlgorithm(Instance input) {
 		this.input=input;
 		this.solution=new Solution(input.name); // create an empty solution (no steps at the beginning)
 		this.current=new Coordinates(this.input.starts.getPositions()); // initialize the current locations with the starting input locations
+		robots = new Robot[input.n];
+		for (int i = 0; i < input.n; i++) {
+			int[] start = {input.starts.getPositions()[0][i], input.starts.getPositions()[1][i]};
+			int[] end = {input.targets.getPositions()[0][i], input.targets.getPositions()[1][i]};
+			robots[i] =  new Robot(start,end, input.obstacles);
+		}
 	}
 	
 	/**
@@ -31,18 +39,73 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 	/**
 	 * Compute a complete solution to the input problem: compute all steps, until all robots reach their target destinations
 	 */
-	public void run() {
-		// TO BE COMPLETED
+	public boolean run() {
+		while(!allArrived()){
+			byte[] mov = computeOneStep();
+			if(mov == null) return false;
+			solution.addStep(mov);
+		}
 		System.out.println("Solution computed");
+		return true;
 	}
-	
+
+	public boolean allArrived(){
+		for (Robot i :
+				robots) {
+			if(! i.isArrive){
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * Add a new motion step to the current solution
 	 */
-	public void computeOneStep() {
+	public byte[] computeOneStep() {
+		Boolean b;
+		while(true){
+			b = canDoOneStep();
+			if(b == null) return null;
+			if(b){
+				int n=this.input.n; // number of robots
+				byte[] mov = new byte[n];
+				for (int i = 0; i < n; i++) {
+					int[] p = robots[i].position;
+					mov[i] = robots[i].getMove();
+					robots[i].move(input.obstacles);
+				}
+				return mov;
+			}
+		}
+	}
+
+	public Boolean canDoOneStep(){
 		int n=this.input.n; // number of robots
-		
-		throw new Error("TO BE COMPLETED");
+		int[][] coord = new int[2][n];
+		byte[] mov = new byte[n];
+		for (int i = 0; i < n; i++) {
+			int[] p = robots[i].position;
+			coord[0][i] = p[0];
+			coord[1][i] = p[1];
+			mov[i] = robots[i].getMove();
+		}
+		Coordinates co = new Coordinates(coord);
+		int[] res;
+		Coordinates cop = new Coordinates(coord);
+		cop.move(mov);
+		res = co.choc2(cop);
+		boolean b;
+		if(res != null) {
+			b = rentreDedans(robots[res[0]], robots[res[1]]);
+			return b ? false : null;
+		}
+		res = co.moveBetweenRob2(mov);
+		if(res != null){
+			b = bump(robots[res[0]], robots[res[1]]);
+			return b ? false : null;
+		}
+		return true;
 	}
 
 	public boolean rentreDedans(Robot arriere, Robot avant){
@@ -111,6 +174,25 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 			r2.changeTarget(tr2, input.obstacles);
 			return true;
 		}
-		/* Reste à faire : les deux peuvent sortir */
+		if(equalsIntArray(tr2, r2.position)){
+			if(r1.isArrive)
+				r1.changeTarget(tr1, input.obstacles);
+			else
+				r2.stay();
+			return true;
+		}
+		if(equalsIntArray(tr1, r1.position)){
+			if(r2.isArrive)
+				r2.changeTarget(tr2, input.obstacles);
+			else
+				r1.stay();
+			return true;
+		}
+		if(r1.tempPath.size() >= r2.tempPath.size()){
+			r1.changeTarget(tr1, input.obstacles);
+			return true;
+		}
+		r2.changeTarget(tr2, input.obstacles);
+		return true;
 	}
 }

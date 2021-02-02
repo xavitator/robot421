@@ -12,7 +12,10 @@ public class Coordinates {
      * pos[0][i] stores the 'x' coordinate, pos[1][i] contains its 'y' coordinate 
      * */
     private int[][] pos;
-    
+
+    public int xmin=Integer.MAX_VALUE, xmax=Integer.MIN_VALUE, ymin=Integer.MAX_VALUE, ymax=Integer.MIN_VALUE;
+
+
     /** size of the array: length of the rows */
     int n;
     
@@ -39,7 +42,16 @@ public class Coordinates {
     		this.pos[1][i]=t[1][i];
     	}
     }
-    
+
+    public void getBoundingBox() {
+        for(int i=0;i<this.size();i++) {
+            xmin=Math.min(xmin, getX(i));
+            xmax=Math.max(xmax, getX(i));
+            ymin=Math.min(ymin, getY(i));
+            ymax=Math.max(ymax, getY(i));
+        }
+    }
+
     /**
      * Return the number of objects (e.g. robots, obstacles, or targets)
      * @return the size of the array
@@ -141,7 +153,7 @@ public class Coordinates {
     public Coordinates addOne(int[] a){
         int size = n + 1;
         int[][] nt = new int[2][size];
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < size-1; i++) {
             nt[0][i]=pos[0][i];
     		nt[1][i]=pos[1][i];
         }
@@ -203,6 +215,40 @@ public class Coordinates {
             }
         }
         return true;
+    }
+    public int[] choc2(Coordinates obs){
+        for (int i = 0; i < this.n; i++) {
+            for (int j = 0; j < obs.n; j++) {
+                if(this.getX(i) == obs.getX(j) && this.getY(i) == obs.getY(j)){
+                    int[] res = {i,j};
+                    return res;
+                }
+            }
+        }
+        return null;
+    }
+    public int[] moveBetweenRob2(byte[] mov){
+        for (int i = 0; i < this.n; i++) {
+            int x = this.getX(i);
+            int y = this.getY(i);
+            switch (mov[i]){
+                case Solution.FIXED : break ;
+                case Solution.N: y++;break;
+                case Solution.S: y--;break;
+                case Solution.E: x++;break;
+                case Solution.W: x--;break;
+            }
+            for (int j = 0; j < this.n; j++) {
+                if (i == j) continue;
+                if(this.getX(j) == x && this.getY(j) == y){
+                    if(mov[i] != mov[j]){
+                        int[] res = {i,j};
+                        return res;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public void move(byte[] mov){

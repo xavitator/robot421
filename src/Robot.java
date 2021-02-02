@@ -10,30 +10,51 @@ public class Robot {
     LinkedList<int[]> travRoad = new LinkedList<>();
     LinkedList<int[]> target = new LinkedList<>();
 
+    boolean isArrive = false;
+
     public Robot(int[] position, int[] target, Coordinates obs) {
         this.position = position;
         this.target.addFirst(target);
         travRoad.addFirst(position);
         Aetoile calcPath = new Aetoile(position, target, obs);
         this.bestPath = calcPath.runAlgo();
+        if(bestPath != null)
+        System.out.println(bestPath.size());
     }
     public void changeTarget(int[] nt, Coordinates obs){
         target.addFirst(nt);
+        isArrive = false;
         Aetoile calcPath = new Aetoile(position, nt, obs);
         this.bestPath = calcPath.runAlgo();
     }
     public int getTimeToArrive(){
+        if(bestPath == null) return 0;
         return this.bestPath.size();
     }
     public byte getMove(){
+        if(bestPath == null) return Solution.FIXED;
+        if(bestPath.isEmpty() || isArrive) return Solution.FIXED;
         return Solution.getMove(position, bestPath.peekFirst());
     }
-    public void move(){
+    public void move(Coordinates obs){
+        if(isArrive || bestPath == null) return;
         position = bestPath.pollFirst();
         travRoad.addFirst(position);
-        if(bestPath.isEmpty()) bestPath.add(position);
+        if(bestPath.isEmpty()) {
+            if(target.size() == 1) {
+                isArrive = true;
+                return;
+            }
+            else{
+                int[] nt = target.pollFirst();
+                Aetoile calcPath = new Aetoile(position, nt, obs);
+                this.bestPath = calcPath.runAlgo();
+            }
+            bestPath.addFirst(position);
+        };
     }
     public void stay(){
+        if(bestPath == null) return;
         bestPath.addFirst(position);
     }
     public int newPathWith(int[] oRob, Coordinates obs){
@@ -68,7 +89,7 @@ public class Robot {
     }
     public boolean canBePush(byte mov, Coordinates obs){
         int[] nm = posAfterMove(mov, position);
-        return obs.contains(nm);
+        return ! obs.contains(nm);
     }
     public boolean isOnMyWay(int[] el){
         if(position[0] == el[0] && position[1] == el[1]) return true;
@@ -96,7 +117,10 @@ public class Robot {
                     visited) {
                 boolean comp = true;
                 for (int j = 0; j < i.length && i.length == arr.length; j++) {
-                    if(i[j] != arr[j])comp=false;
+                    if (i[j] != arr[j]) {
+                        comp = false;
+                        break;
+                    }
                 }
                 if(comp){
                     return true;
@@ -121,6 +145,7 @@ public class Robot {
             addToList.apply(Solution.S);
             addToList.apply(Solution.E);
             addToList.apply(Solution.W);
+            visited.add(temp);
         }
         while((!other.isOnMyWay(targ)) && (!box.isEmpty()));
         if(other.isOnMyWay(targ)) return targ;
@@ -136,7 +161,10 @@ public class Robot {
                     visited) {
                 boolean comp = true;
                 for (int j = 0; j < i.length && i.length == arr.length; j++) {
-                    if(i[j] != arr[j])comp=false;
+                    if (i[j] != arr[j]) {
+                        comp = false;
+                        break;
+                    }
                 }
                 if(comp){
                     return true;
