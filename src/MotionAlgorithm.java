@@ -41,10 +41,10 @@ public abstract class MotionAlgorithm {
 		
 		for(int i=0;i<n;i++) {
 			if(oneStepMove[i]==Solution.W) {
-				newPos.increaseX(i); // increment 'x' by +1
+				newPos.decreaseX(i); // increment 'x' by +1
 			}
 			else if(oneStepMove[i]==Solution.E) {
-				newPos.decreaseX(i); // decrease 'x' by 1
+				newPos.increaseX(i); // decrease 'x' by 1
 			}
 			else if(oneStepMove[i]==Solution.N) {
 				newPos.increaseY(i); // increment 'y' by 1

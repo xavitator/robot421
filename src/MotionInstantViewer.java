@@ -50,7 +50,7 @@ public class MotionInstantViewer extends PApplet {
 	}
 
 	public void setup(){
-		System.out.println("Running motion viewer");
+		System.out.println("Running motion instant viewer");
 		System.out.println("\t input problem: "+this.input.n+" robots");
 		if(this.solution!=null) {
 			System.out.println("\t input solution: "+this.solution.steps.size()+" time steps");
@@ -90,10 +90,10 @@ public class MotionInstantViewer extends PApplet {
 
 	/** Move all robots to the next location, according to the current solution */
 	public void getNextRobotLocation() {
-		if(this.solution.steps.size()==0) {
-		    this.robotLocations.addLast(MotionAlgorithm.moveRobotsOneStep(this.robotLocations.getLast(), algo.computeOneStep()));
+		if(this.solution.steps.size()==0 && this.robotLocations.size() <= timeStep+1) {
+		    this.robotLocations.addLast(MotionAlgorithm.moveRobotsOneStep(this.robotLocations.get(timeStep), algo.computeOneStep()));
 		}
-		if(this.timeStep>=this.solution.steps.size()) // no more time steps to show
+		if(false && this.timeStep>=this.solution.steps.size()) // no more time steps to show
 			return;
 
 		this.timeStep++;

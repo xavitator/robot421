@@ -1,29 +1,36 @@
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.function.Function;
 
 public class Robot {
 
     int[] position;
+    LinkedList<int[]> resolvedBlock = new LinkedList<>();
     LinkedList<int[]> bestPath;
     LinkedList<int[]> tempPath = new LinkedList<>();
     LinkedList<int[]> travRoad = new LinkedList<>();
     LinkedList<int[]> target = new LinkedList<>();
 
+    int id;
+
     boolean isArrive = false;
 
-    public Robot(int[] position, int[] target, Coordinates obs) {
+    public Robot(int[] position, int[] target, Coordinates obs, int id) {
+        this.id = id;
         this.position = position;
         this.target.addFirst(target);
         travRoad.addFirst(position);
         Aetoile calcPath = new Aetoile(position, target, obs);
         this.bestPath = calcPath.runAlgo();
-        if(bestPath != null)
-        System.out.println(bestPath.size());
     }
     public void changeTarget(int[] nt, Coordinates obs){
         target.addFirst(nt);
         isArrive = false;
+        for (int[] i :
+                resolvedBlock) {
+            obs = obs.addOne(i);
+        }
         Aetoile calcPath = new Aetoile(position, nt, obs);
         this.bestPath = calcPath.runAlgo();
     }
@@ -37,6 +44,7 @@ public class Robot {
         return Solution.getMove(position, bestPath.peekFirst());
     }
     public void move(Coordinates obs){
+        resolvedBlock = new LinkedList<>();
         if(isArrive || bestPath == null) return;
         position = bestPath.pollFirst();
         travRoad.addFirst(position);
@@ -46,7 +54,8 @@ public class Robot {
                 return;
             }
             else{
-                int[] nt = target.pollFirst();
+                target.pollFirst();
+                int[] nt = target.peekFirst();
                 Aetoile calcPath = new Aetoile(position, nt, obs);
                 this.bestPath = calcPath.runAlgo();
             }
@@ -58,6 +67,10 @@ public class Robot {
         bestPath.addFirst(position);
     }
     public int newPathWith(int[] oRob, Coordinates obs){
+        for (int[] i :
+                resolvedBlock) {
+            obs = obs.addOne(i);
+        }
         Aetoile calcPath = new Aetoile(position, target.peekFirst(), obs.addOne(oRob));
         tempPath = calcPath.runAlgo();
         if(tempPath == null) return -1;
@@ -78,20 +91,30 @@ public class Robot {
         return np;
     }
     public int newPathAfterMove(byte mov, Coordinates obs){
+        for (int[] i :
+                resolvedBlock) {
+            obs = obs.addOne(i);
+        }
         int[] np = posAfterMove(mov, position);
         Aetoile calcPath = new Aetoile(np, target.peekFirst(), obs);
         tempPath = calcPath.runAlgo();
         tempPath.addFirst(np);
         return tempPath.size();
     }
-    public void updateBestPath(){
+    public void updateBestPath() {
+        this.resolvedBlock.add(bestPath.peekFirst());
         this.bestPath = tempPath;
     }
     public boolean canBePush(byte mov, Coordinates obs){
+        for (int[] i :
+                resolvedBlock) {
+            obs = obs.addOne(i);
+        }
         int[] nm = posAfterMove(mov, position);
         return ! obs.contains(nm);
     }
     public boolean isOnMyWay(int[] el){
+        System.out.println("robot : " + id);
         if(position[0] == el[0] && position[1] == el[1]) return true;
         for (int[] i :
                 bestPath) {
@@ -109,6 +132,11 @@ public class Robot {
     }
 
     public int[] getClosestOuter(Robot other, Coordinates obs){
+        for (int[] i :
+                resolvedBlock) {
+            obs = obs.addOne(i);
+        }
+        Coordinates obst = obs.addOne(other.position);
         LinkedList<int[]> box = new LinkedList<>();
         LinkedList<int[]> visited = new LinkedList<>();
         box.add(position);
@@ -131,7 +159,7 @@ public class Robot {
         int[] targ = new int[2];
         Function<Byte, Boolean> addToList = (mov) -> {
             int[] np = posAfterMove(mov, targ);
-            if(! obs.contains(np) && !containsIntArray.apply(np)) {
+            if(! obst.contains(np) && !containsIntArray.apply(np)) {
                 box.addFirst(np);
                 return true;
             }
@@ -141,18 +169,26 @@ public class Robot {
             int[] temp = box.pollLast();
             targ[0] = temp[0];
             targ[1] = temp[1];
-            addToList.apply(Solution.N);
-            addToList.apply(Solution.S);
-            addToList.apply(Solution.E);
-            addToList.apply(Solution.W);
+            List<Byte> depl = Arrays.asList(Solution.N,Solution.S,Solution.E,Solution.W);
+            Collections.shuffle(depl);
+            for (Byte i :
+                    depl) {
+
+                addToList.apply(i);
+            }
             visited.add(temp);
         }
-        while((!other.isOnMyWay(targ)) && (!box.isEmpty()));
-        if(other.isOnMyWay(targ)) return targ;
+        while((other.isOnMyWay(targ)) && (!box.isEmpty()));
+        if(! other.isOnMyWay(targ)) return targ;
         return null;
     }
 
     public int[] getExchangeCase(Coordinates obs){
+        for (int[] i :
+                resolvedBlock) {
+            obs = obs.addOne(i);
+        }
+        Coordinates obst = obs;
         LinkedList<int[]> box = new LinkedList<>();
         LinkedList<int[]> visited = new LinkedList<>();
         box.add(position);
@@ -175,7 +211,7 @@ public class Robot {
         int[] targ = new int[2];
         Function<Byte, Boolean> addToList = (mov) -> {
             int[] np = posAfterMove(mov, targ);
-            if(! obs.contains(np) && !containsIntArray.apply(np)) {
+            if(! obst.contains(np) && !containsIntArray.apply(np)) {
                 box.addFirst(np);
                 return true;
             }
@@ -186,22 +222,16 @@ public class Robot {
             targ[0] = temp[0];
             targ[1] = temp[1];
             int adj = 0;
-            if (addToList.apply(Solution.N))
-                adj += 1;
-            if (addToList.apply(Solution.S)){
-                adj +=1;
-                if(adj >= 2)
-                    return box.peekFirst();
-            }
-            if (addToList.apply(Solution.E)){
-                adj +=1;
-                if(adj >= 2)
-                    return box.peekFirst();
-            }
-            if (addToList.apply(Solution.W)){
-                adj +=1;
-                if(adj >= 2)
-                    return box.peekFirst();
+            List<Byte> depl = Arrays.asList(Solution.N,Solution.S,Solution.E,Solution.W);
+            Collections.shuffle(depl);
+            for (Byte i :
+                    depl) {
+                if (addToList.apply(i)) {
+                    adj += 1;
+                    if(adj >= 2){
+                        return box.peekFirst();
+                    }
+                }
             }
             visited.add(temp);
         }

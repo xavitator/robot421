@@ -16,16 +16,20 @@ public class Aetoile {
         this.target = target;
         this.obstacles = obstacles;
         obstacles.getBoundingBox();
-        xmin = obstacles.xmin-1;
-        xmax = obstacles.xmax+1;
-        ymin = obstacles.ymin-1;
-        ymax = obstacles.ymax+1;
-        System.out.printf("%d, %d, %d, %d\n", xmin, xmax, ymin, ymax);
+        xmin = obstacles.xmin;
+        xmax = obstacles.xmax;
+        ymin = obstacles.ymin;
+        ymax = obstacles.ymax;
+        xmin = Math.min(start[0], Math.min(target[0], xmin)) - 1;
+        ymin = Math.min(start[1], Math.min(target[1], ymin)) - 1;
+        xmax = Math.max(start[0], Math.max(target[0], xmax)) + 1;
+        ymax = Math.max(start[1], Math.max(target[1], ymax)) + 1;
         Node s = new Node(start[0], start[1], 0, null);
         this.open.add(s);
     }
 
     public LinkedList<int[]> runAlgo(){
+        LinkedList<int[]> res = new LinkedList<>();
         Node courant = open.pollFirst();
         closed.add(courant);
         while (! courant.equals(target)){
@@ -33,17 +37,18 @@ public class Aetoile {
             addNode(courant, courant.x - 1, courant.y);
             addNode(courant, courant.x, courant.y + 1);
             addNode(courant, courant.x, courant.y - 1);
-            if(open.isEmpty()) return null;
+            if(open.isEmpty()){
+                return null;
+            }
             courant = open.pollFirst();
             closed.add(courant);
         }
-        LinkedList<int[]> res = new LinkedList<>();
         do {
             int[] t = {courant.x, courant.y};
             res.addFirst(t);
             courant = courant.parent;
         }
-        while(courant != null);
+        while( courant != null && courant.parent != null);
         return res;
     }
 
@@ -110,7 +115,15 @@ public class Aetoile {
             if (t1 == null) return -1;
             Node o1 = (Node) o;
             Node o2 = (Node) t1;
-            return o1.distance() - o2.distance();
+            int dist = o1.distance() - o2.distance();
+            if(dist == 0){
+                int compx = o1.x - o2.x;
+                if(compx == 0){
+                    return o1.y - o2.y;
+                }
+                return compx;
+            }
+            return dist;
         }
 
 

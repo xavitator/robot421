@@ -143,6 +143,22 @@ public class Coordinates {
     	this.pos[1][i]--;
     }
 
+    @Override
+    public String toString() {
+        String s = "";
+        for (int i = 0; i < pos[0].length; i++) {
+            s += "[" + pos[0][i] + "," + pos[1][i] +"]";
+        }
+        return "Coordinates{" +
+                "pos =" + s+
+                ", xmin=" + xmin +
+                ", xmax=" + xmax +
+                ", ymin=" + ymin +
+                ", ymax=" + ymax +
+                ", n=" + n +
+                '}';
+    }
+
     public boolean contains(int[] point){
         for (int i = 0; i < n; i++) {
             if(getX(i) == point[0] && getY(i) == point[1]) return true;
@@ -185,7 +201,7 @@ public class Coordinates {
 
     public boolean choc(Coordinates obs){
         for (int i = 0; i < this.n; i++) {
-            for (int j = 0; j < obs.n; j++) {
+            for (int j = i+1; j < obs.n; j++) {
                 if(this.getX(i) == obs.getX(j) && this.getY(i) == obs.getY(j)){
                     return true;
                 }
@@ -218,10 +234,26 @@ public class Coordinates {
     }
     public int[] choc2(Coordinates obs){
         for (int i = 0; i < this.n; i++) {
-            for (int j = 0; j < obs.n; j++) {
-                if(this.getX(i) == obs.getX(j) && this.getY(i) == obs.getY(j)){
+            for (int j = i + 1; j < obs.n; j++) {
+                if(obs.getX(i) == obs.getX(j) && obs.getY(i) == obs.getY(j)){
                     int[] res = {i,j};
                     return res;
+                }
+            }
+        }
+        for (int i = 0; i < this.n; i++) {
+            for (int j = i + 1; j < obs.n; j++) {
+                if(this.getX(i) == obs.getX(j) && this.getY(i) == obs.getY(j)){
+                    int[] s = {this.getX(i), this.getY(i)};
+                    int[] n = {obs.getX(i), obs.getY(i)};
+                    byte movi = Solution.getMove(s, n);
+                    int[] ss = {this.getX(j), this.getY(j)};
+                    int[] nn = {obs.getX(j), obs.getY(j)};
+                    byte movj = Solution.getMove(ss, nn);
+                    if(movi != movj) {
+                        int[] res = {i, j};
+                        return res;
+                    }
                 }
             }
         }
@@ -241,7 +273,7 @@ public class Coordinates {
             for (int j = 0; j < this.n; j++) {
                 if (i == j) continue;
                 if(this.getX(j) == x && this.getY(j) == y){
-                    if(mov[i] != mov[j]){
+                    if(mov[j] != 0 && mov[i] != 0 && ((mov[i] <= 2 && mov[j] >= 3) || (mov[i] >= 3 && mov[j] <= 2))){
                         int[] res = {i,j};
                         return res;
                     }
