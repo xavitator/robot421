@@ -87,10 +87,14 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 					mov[i] = robots[i].getMove();
 					robots[i].move(input.obstacles);
 					System.out.print(i + " : " + Arrays.toString(robots[i].position) + " / ");
-					for (int[] k :
-							robots[i].bestPath) {
-						System.out.print(Arrays.toString(k) + ",");
+					if(robots[i].bestPath != null) {
+						for (int[] k :
+								robots[i].bestPath) {
+							System.out.print(Arrays.toString(k) + ",");
+						}
 					}
+					else
+						System.out.print("null");
 					System.out.println();
 				}
 				System.out.println(Arrays.toString(mov));
@@ -109,6 +113,7 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 			coord[1][i] = p[1];
 			mov[i] = robots[i].getMove();
 		}
+		System.out.println("mov : " + Arrays.toString(mov));
 		Coordinates co = new Coordinates(coord);
 		int[] res;
 		Coordinates cop = new Coordinates(coord);
@@ -117,12 +122,14 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 		res = co.moveBetweenRob2(mov);
 		System.out.println(Arrays.toString(res));
 		if(res != null){
+			System.out.println("rentrededans, mov : " + mov[res[0]] + " , " + mov[res[1]]);
 			b = rentreDedans(robots[res[0]], robots[res[1]]);
 			return b ? false : null;
 		}
 		res = co.choc2(cop);
 		System.out.println(Arrays.toString(res));
 		if(res != null) {
+			System.out.println("bump, mov : " + mov[res[0]] + " , " + mov[res[1]]);
 			b = bump(robots[res[0]], robots[res[1]]);
 			System.out.println(b);
 			return b ? false : null;
@@ -221,7 +228,7 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 				r1.stay();
 			return true;
 		}
-		if(r1.tempPath != null  && r1.tempPath.size() < r2.tempPath.size()){
+		if(r1.tempPath != null && r2.tempPath != null  && r1.tempPath.size() < r2.tempPath.size()){
 			r1.changeTarget(tr1, input.obstacles);
 			return true;
 		}

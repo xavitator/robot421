@@ -25,22 +25,32 @@ public class Robot {
         this.bestPath = calcPath.runAlgo();
     }
     public void changeTarget(int[] nt, Coordinates obs){
+        if(MyBestAlgorithm.equalsIntArray(nt, position)) {
+            stay();
+            return;
+        }
         target.addFirst(nt);
         isArrive = false;
+        resolvedBlock.add(bestPath.peekFirst());
         for (int[] i :
                 resolvedBlock) {
+            if(i != null)
             obs = obs.addOne(i);
         }
         Aetoile calcPath = new Aetoile(position, nt, obs);
-        this.bestPath = calcPath.runAlgo();
+        LinkedList<int[]> temp = calcPath.runAlgo();
+        if(temp == null){
+            stay();
+            return;
+        }
+        this.bestPath = temp;
     }
     public int getTimeToArrive(){
-        if(bestPath == null) return 0;
+        if(bestPath == null) return -1;
         return this.bestPath.size();
     }
     public byte getMove(){
-        if(bestPath == null) return Solution.FIXED;
-        if(bestPath.isEmpty() || isArrive) return Solution.FIXED;
+        if(bestPath == null || bestPath.isEmpty() || isArrive) return Solution.FIXED;
         return Solution.getMove(position, bestPath.peekFirst());
     }
     public void move(Coordinates obs){
@@ -59,16 +69,17 @@ public class Robot {
                 Aetoile calcPath = new Aetoile(position, nt, obs);
                 this.bestPath = calcPath.runAlgo();
             }
-            bestPath.addFirst(position);
         };
     }
     public void stay(){
         if(bestPath == null) return;
+        resolvedBlock.add(bestPath.peekFirst());
         bestPath.addFirst(position);
     }
     public int newPathWith(int[] oRob, Coordinates obs){
         for (int[] i :
                 resolvedBlock) {
+            if(i != null)
             obs = obs.addOne(i);
         }
         Aetoile calcPath = new Aetoile(position, target.peekFirst(), obs.addOne(oRob));
@@ -91,10 +102,6 @@ public class Robot {
         return np;
     }
     public int newPathAfterMove(byte mov, Coordinates obs){
-        for (int[] i :
-                resolvedBlock) {
-            obs = obs.addOne(i);
-        }
         int[] np = posAfterMove(mov, position);
         Aetoile calcPath = new Aetoile(np, target.peekFirst(), obs);
         tempPath = calcPath.runAlgo();
@@ -102,12 +109,17 @@ public class Robot {
         return tempPath.size();
     }
     public void updateBestPath() {
-        this.resolvedBlock.add(bestPath.peekFirst());
-        this.bestPath = tempPath;
+        if(bestPath != null)
+            this.resolvedBlock.add(bestPath.peekFirst());
+        if(tempPath != null)
+            this.bestPath = tempPath;
+        else
+            stay();
     }
     public boolean canBePush(byte mov, Coordinates obs){
         for (int[] i :
                 resolvedBlock) {
+            if(i != null)
             obs = obs.addOne(i);
         }
         int[] nm = posAfterMove(mov, position);
@@ -116,6 +128,7 @@ public class Robot {
     public boolean isOnMyWay(int[] el){
         System.out.println("robot : " + id);
         if(position[0] == el[0] && position[1] == el[1]) return true;
+        if(bestPath == null) return false;
         for (int[] i :
                 bestPath) {
             if(i[0] == el[0] && i[1] == el[1]) return true;
@@ -134,6 +147,7 @@ public class Robot {
     public int[] getClosestOuter(Robot other, Coordinates obs){
         for (int[] i :
                 resolvedBlock) {
+            if(i != null)
             obs = obs.addOne(i);
         }
         Coordinates obst = obs.addOne(other.position);
@@ -186,6 +200,7 @@ public class Robot {
     public int[] getExchangeCase(Coordinates obs){
         for (int[] i :
                 resolvedBlock) {
+            if(i != null)
             obs = obs.addOne(i);
         }
         Coordinates obst = obs;
