@@ -1,5 +1,6 @@
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 
 /**
  * An algorithm that computes a solution of the motion planning problem. <br>
@@ -10,7 +11,8 @@ import java.util.Collections;
 public class MyBestAlgorithm extends MotionAlgorithm {
 	/** An input instance of the motion planning problem */
 	public Instance input;
-	
+
+	Random rd = new Random();
 	/** The solution computed by the algorithm */
 	public Solution solution;
 	
@@ -18,6 +20,8 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 	Coordinates current;
 
 	Robot[] robots;
+
+	boolean optimizeTime = false;
 	
 	public MyBestAlgorithm(Instance input) {
 		this.input=input;
@@ -44,8 +48,7 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 	public boolean run() {
 
 		while(!allArrived()){
-			byte[] mov = computeOneStep();
-			if(allStayed(mov)) return false;
+			byte[] mov = computeOneStepTwo();
 			solution.addStep(mov);
 		}
 		System.out.println("Solution computed");
@@ -69,6 +72,14 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 		return true;
 	}
 
+	public byte[] computeOneStepTwo(){
+		byte[] onestep = computeOneStep();
+		while(!allArrived() && allStayed(onestep)){
+			onestep = computeOneStep();
+		}
+		return onestep;
+	}
+
 	/**
 	 * Add a new motion step to the current solution
 	 */
@@ -76,7 +87,6 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 		System.out.println(input.obstacles);
 		Boolean b;
 		while(true){
-			System.out.println("ee");
 			b = canDoOneStep();
 			if(b == null) return null;
 			if(b){
@@ -86,7 +96,7 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 					int[] p = robots[i].position;
 					mov[i] = robots[i].getMove();
 					robots[i].move(input.obstacles);
-					System.out.print(i + " : " + Arrays.toString(robots[i].position) + " / ");
+					System.out.print(i + " : " + Arrays.toString(robots[i].position) + " / bestPath:");
 					if(robots[i].bestPath != null) {
 						for (int[] k :
 								robots[i].bestPath) {
@@ -97,7 +107,7 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 						System.out.print("null");
 					System.out.println();
 				}
-				System.out.println(Arrays.toString(mov));
+				System.out.println("move : " + Arrays.toString(mov));
 				return mov;
 			}
 		}
@@ -113,32 +123,47 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 			coord[1][i] = p[1];
 			mov[i] = robots[i].getMove();
 		}
-		System.out.println("mov : " + Arrays.toString(mov));
 		Coordinates co = new Coordinates(coord);
 		int[] res;
 		Coordinates cop = new Coordinates(coord);
 		cop.move(mov);
-		boolean b;
-		res = co.moveBetweenRob2(mov);
-		System.out.println(Arrays.toString(res));
-		if(res != null){
-			System.out.println("rentrededans, mov : " + mov[res[0]] + " , " + mov[res[1]]);
-			b = rentreDedans(robots[res[0]], robots[res[1]]);
-			return b ? false : null;
+		boolean b = rd.nextBoolean();
+		if(b) {
+			res = co.moveBetweenRob2(mov);
+			if (res != null) {
+				System.out.println("rentrededans, mov : " + mov[res[0]] + " , " + mov[res[1]]);
+				b = rentreDedans(robots[res[0]], robots[res[1]]);
+				return b ? false : null;
+			}
 		}
-		res = co.choc2(cop);
-		System.out.println(Arrays.toString(res));
-		if(res != null) {
-			System.out.println("bump, mov : " + mov[res[0]] + " , " + mov[res[1]]);
-			b = bump(robots[res[0]], robots[res[1]]);
-			System.out.println(b);
-			return b ? false : null;
+		else {
+			res = co.choc2(cop);
+			if (res != null) {
+				System.out.println("bump, mov : " + mov[res[0]] + " , " + mov[res[1]]);
+				b = bump(robots[res[0]], robots[res[1]]);
+				return b ? false : null;
+			}
+		}
+		if(! b) {
+			res = co.moveBetweenRob2(mov);
+			if (res != null) {
+				System.out.println("rentrededans, mov : " + mov[res[0]] + " , " + mov[res[1]]);
+				b = rentreDedans(robots[res[0]], robots[res[1]]);
+				return b ? false : null;
+			}
+		}
+		else {
+			res = co.choc2(cop);
+			if (res != null) {
+				System.out.println("bump, mov : " + mov[res[0]] + " , " + mov[res[1]]);
+				b = bump(robots[res[0]], robots[res[1]]);
+				return b ? false : null;
+			}
 		}
 		return true;
 	}
 
 	public boolean rentreDedans(Robot arriere, Robot avant){
-		System.out.println("rentrededans");
 		int arrActTime = arriere.getTimeToArrive();
 		int avActTime = avant.getTimeToArrive();
 		int arrNextTime = arriere.newPathWith(avant.position, input.obstacles);
@@ -150,7 +175,7 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 			arriere.stay();
 			return true;
 		}
-		if(avant.canBePush(arriere.getMove(), input.obstacles)){
+		if(avant.canBePush(arriere.getMove(), input.obstacles) && optimizeTime){
 			avant.newPathAfterMove(arriere.getMove(), input.obstacles);
 			avant.updateBestPath();
 			return true;
@@ -183,7 +208,6 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 	}
 
 	public boolean bump(Robot r1, Robot r2){
-		System.out.println("bump");
 		int[] pos1 = Robot.posAfterMove(r1.getMove(), r1.position);
 		int[] pos2 = Robot.posAfterMove(r2.getMove(), r2.position);
 		int r1ActTime = r1.getTimeToArrive();
@@ -200,7 +224,7 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 		}
 		int[] tr1 = r1.getClosestOuter(r2, input.obstacles);
 		int[] tr2 = r2.getClosestOuter(r1, input.obstacles);
-		System.out.println(Arrays.toString(tr1) + ":tr1 / tr2:"+ Arrays.toString(tr2));
+		System.out.println("bump : "+ Arrays.toString(tr1) + ":tr1 / tr2:"+ Arrays.toString(tr2));
 		if(tr1 == null && tr2 == null){
 			r1.stay();
 			r2.stay();
@@ -212,6 +236,22 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 		}
 		if(tr1 == null){
 			r2.changeTarget(tr2, input.obstacles);
+			return true;
+		}
+		if(equalsIntArray(tr2, r2.position) && equalsIntArray(tr1, r1.position)){
+			Robot t1 = null, t2 = null;
+			if(r1ActTime < r2ActTime){
+				t1 = r1;
+				t2 = r2;
+			}
+			else{
+				t1 = r2;
+				t2 = r1;
+			}
+			if(t2.isArrive)
+				t2.changeTarget(tr2, input.obstacles);
+			else
+				t1.stay();
 			return true;
 		}
 		if(equalsIntArray(tr2, r2.position)){
@@ -228,11 +268,23 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 				r1.stay();
 			return true;
 		}
-		if(r1.tempPath != null && r2.tempPath != null  && r1.tempPath.size() < r2.tempPath.size()){
-			r1.changeTarget(tr1, input.obstacles);
+		int r1pathToTarget = r1.newPathToTarget(tr1, input.obstacles.addOne(r2.position));
+		int r2pathToTarget = r2.newPathToTarget(tr2, input.obstacles.addOne(r1.position));
+		if(r1pathToTarget >= 0 && r1pathToTarget < r2pathToTarget){
+			r1.updateBestIntermediairePath(tr1);
 			return true;
 		}
-		r2.changeTarget(tr2, input.obstacles);
+		if(r1pathToTarget >= 0 && r1pathToTarget == r2pathToTarget){
+			if(r2ActTime >= 0 && r1ActTime > r2ActTime) {
+				r2.updateBestIntermediairePath(tr2);
+				return true;
+			}
+			if(r1ActTime >= 0 && r2ActTime > r1ActTime) {
+				r1.updateBestIntermediairePath(tr1);
+				return true;
+			}
+		}
+		r2.updateBestIntermediairePath(tr2);
 		return true;
 	}
 }

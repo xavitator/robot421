@@ -58,7 +58,8 @@ public class Robot {
         if(isArrive || bestPath == null) return;
         position = bestPath.pollFirst();
         travRoad.addFirst(position);
-        if(bestPath.isEmpty()) {
+        if(position == null) System.out.println(id + " / ");
+        if(MyBestAlgorithm.equalsIntArray(target.peekFirst(), position)) {
             if(target.size() == 1) {
                 isArrive = true;
                 return;
@@ -69,10 +70,11 @@ public class Robot {
                 Aetoile calcPath = new Aetoile(position, nt, obs);
                 this.bestPath = calcPath.runAlgo();
             }
-        };
+        }
     }
     public void stay(){
         if(bestPath == null) return;
+        if(MyBestAlgorithm.equalsIntArray(bestPath.peek(), position))return;
         resolvedBlock.add(bestPath.peekFirst());
         bestPath.addFirst(position);
     }
@@ -116,6 +118,21 @@ public class Robot {
         else
             stay();
     }
+
+    public void updateBestIntermediairePath(int[] targ) {
+        if(MyBestAlgorithm.equalsIntArray(targ, position)){
+            stay();
+            return;
+        }
+        if(bestPath != null)
+            this.resolvedBlock.add(bestPath.peekFirst());
+        if(tempPath != null) {
+            this.bestPath = tempPath;
+            this.target.addFirst(targ);
+        }
+        else
+            stay();
+    }
     public boolean canBePush(byte mov, Coordinates obs){
         for (int[] i :
                 resolvedBlock) {
@@ -126,7 +143,6 @@ public class Robot {
         return ! obs.contains(nm);
     }
     public boolean isOnMyWay(int[] el){
-        System.out.println("robot : " + id);
         if(position[0] == el[0] && position[1] == el[1]) return true;
         if(bestPath == null) return false;
         for (int[] i :
@@ -142,6 +158,18 @@ public class Robot {
             c[i] = a[i] + b[i];
         }
         return c;
+    }
+
+    public int newPathToTarget(int[] targ, Coordinates obs){
+        for (int[] i :
+                resolvedBlock) {
+            if(i != null)
+            obs = obs.addOne(i);
+        }
+        Aetoile calcPath = new Aetoile(position, targ, obs);
+        tempPath = calcPath.runAlgo();
+        if(tempPath == null) return -1;
+        return tempPath.size();
     }
 
     public int[] getClosestOuter(Robot other, Coordinates obs){

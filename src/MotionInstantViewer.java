@@ -91,7 +91,7 @@ public class MotionInstantViewer extends PApplet {
 	/** Move all robots to the next location, according to the current solution */
 	public void getNextRobotLocation() {
 		if(this.solution.steps.size()==0 && this.robotLocations.size() <= timeStep+1) {
-		    this.robotLocations.addLast(MotionAlgorithm.moveRobotsOneStep(this.robotLocations.get(timeStep), algo.computeOneStep()));
+		    this.robotLocations.addLast(MotionAlgorithm.moveRobotsOneStep(this.robotLocations.get(timeStep), algo.computeOneStepTwo()));
 		}
 		if(false && this.timeStep>=this.solution.steps.size()) // no more time steps to show
 			return;

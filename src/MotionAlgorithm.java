@@ -21,7 +21,7 @@ public abstract class MotionAlgorithm {
 	 * Add a new motion step to the current solution
 	 */
 	public abstract byte[] computeOneStep();
-
+	public abstract byte[] computeOneStepTwo();
 	/**
 	 * Perform one step of the parallel-motion for all robots: robots are move to new locations. <br>
 	 * 

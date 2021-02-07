@@ -1,4 +1,6 @@
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This class encapsulates an array storing 2D integer coordinates (for representing robots, obstacles and target locations)
@@ -233,34 +235,41 @@ public class Coordinates {
         return true;
     }
     public int[] choc2(Coordinates obs){
+        Integer[] temp = new Integer[this.n];
         for (int i = 0; i < this.n; i++) {
-            for (int j = i + 1; j < obs.n; j++) {
+            temp[i]= i;
+        }
+        List<Integer> list = Arrays.asList(temp);
+        Collections.shuffle(list);
+        for (Integer i : list) {
+            for (int j = 0; j < obs.n; j++) {
+                if(i == j) continue;
                 if(obs.getX(i) == obs.getX(j) && obs.getY(i) == obs.getY(j)){
                     int[] res = {i,j};
                     return res;
                 }
             }
         }
-        for (int i = 0; i < this.n; i++) {
-            for (int j = i + 1; j < obs.n; j++) {
-                if(this.getX(i) == obs.getX(j) && this.getY(i) == obs.getY(j)){
-                    int[] s = {this.getX(i), this.getY(i)};
-                    int[] n = {obs.getX(i), obs.getY(i)};
-                    byte movi = Solution.getMove(s, n);
-                    int[] ss = {this.getX(j), this.getY(j)};
-                    int[] nn = {obs.getX(j), obs.getY(j)};
-                    byte movj = Solution.getMove(ss, nn);
-                    if(movi != movj) {
-                        int[] res = {i, j};
-                        return res;
-                    }
+        for (Integer i : list) {
+            for (int j = 0; j < obs.n; j++) {
+                if(i ==j) continue;
+                if(this.getX(i) == obs.getX(j) && this.getY(i) == obs.getY(j)
+                && this.getX(j) == obs.getX(i) && this.getY(j) == obs.getY(i)){
+                    int[] res = {i, j};
+                    return res;
                 }
             }
         }
         return null;
     }
     public int[] moveBetweenRob2(byte[] mov){
+        Integer[] temp = new Integer[this.n];
         for (int i = 0; i < this.n; i++) {
+            temp[i]= i;
+        }
+        List<Integer> list = Arrays.asList(temp);
+        Collections.shuffle(list);
+        for (Integer i : list) {
             int x = this.getX(i);
             int y = this.getY(i);
             switch (mov[i]){
@@ -270,7 +279,7 @@ public class Coordinates {
                 case Solution.E: x++;break;
                 case Solution.W: x--;break;
             }
-            for (int j = 0; j < this.n; j++) {
+            for (Integer j : list) {
                 if (i == j) continue;
                 if(this.getX(j) == x && this.getY(j) == y){
                     if(mov[j] != 0 && mov[i] != 0 && ((mov[i] <= 2 && mov[j] >= 3) || (mov[i] >= 3 && mov[j] <= 2))){
@@ -284,7 +293,7 @@ public class Coordinates {
     }
 
     public void move(byte[] mov){
-        for (byte i = 0; i < mov.length; i++) {
+        for (int i = 0; i < mov.length; i++) {
             switch (mov[i]){
                 case Solution.FIXED : break;
                 case Solution.N: this.increaseY(i);break;
