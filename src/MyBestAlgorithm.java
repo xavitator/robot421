@@ -131,7 +131,7 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 		if(b) {
 			res = co.moveBetweenRob2(mov);
 			if (res != null) {
-				System.out.println("rentrededans, mov : " + mov[res[0]] + " , " + mov[res[1]]);
+				System.out.println("rentrededans, robs : "+ res[0]+", "+res[1]+ "/ mov : " + mov[res[0]] + " , " + mov[res[1]]);
 				b = rentreDedans(robots[res[0]], robots[res[1]]);
 				return b ? false : null;
 			}
@@ -139,7 +139,7 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 		else {
 			res = co.choc2(cop);
 			if (res != null) {
-				System.out.println("bump, mov : " + mov[res[0]] + " , " + mov[res[1]]);
+				System.out.println("bump, robs : "+ res[0]+", "+res[1]+ "/ mov : " + mov[res[0]] + " , " + mov[res[1]]);
 				b = bump(robots[res[0]], robots[res[1]]);
 				return b ? false : null;
 			}
@@ -147,7 +147,7 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 		if(! b) {
 			res = co.moveBetweenRob2(mov);
 			if (res != null) {
-				System.out.println("rentrededans, mov : " + mov[res[0]] + " , " + mov[res[1]]);
+				System.out.println("rentrededans, robs : "+ res[0]+", "+res[1]+ "/ mov : " + mov[res[0]] + " , " + mov[res[1]]);
 				b = rentreDedans(robots[res[0]], robots[res[1]]);
 				return b ? false : null;
 			}
@@ -155,7 +155,7 @@ public class MyBestAlgorithm extends MotionAlgorithm {
 		else {
 			res = co.choc2(cop);
 			if (res != null) {
-				System.out.println("bump, mov : " + mov[res[0]] + " , " + mov[res[1]]);
+				System.out.println("bump, robs : "+ res[0]+", "+res[1]+ "/ mov : " + mov[res[0]] + " , " + mov[res[1]]);
 				b = bump(robots[res[0]], robots[res[1]]);
 				return b ? false : null;
 			}
